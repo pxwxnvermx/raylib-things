@@ -5,7 +5,7 @@
 #include "./game_of_life.h"
 
 int main() {
-  // glider	
+  // glider
   state[5][1] = 1;
   state[5][3] = 1;
   state[6][2] = 1;
@@ -15,18 +15,20 @@ int main() {
   // state[rows-4][7] = 1;
   // state[rows-4][8] = 1;
   // state[rows-4][9] = 1;
-  // fill_random();
+  fill_random();
   while (true) {
-	evolve();
-	std::cout << "\033[2J\033[1;1H";
-	for(int i = 0; i < rows; i++) {
-		for(int j = 0; j < cols; j++) {
-			if(state[i][j] == 1) std::cout << "X";
-			else std::cout << "*";
-		}
-		std::cout << "\n";
-	}
-	usleep(1000);
+    evolve();
+    std::cout << "\033[2J\033[1;1H";
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        if (state[i][j] == 1)
+          std::cout << "O";
+        else
+          std::cout << "-";
+      }
+      std::cout << "\n";
+    }
+    sleep(1);
   }
   return 0;
 }
