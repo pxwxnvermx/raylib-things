@@ -10,19 +10,24 @@ int main() {
   SetTargetFPS(60);
   SetTraceLogLevel(LOG_ALL);
   Camera3D camera = {
-      .position = {100, -100, -100},
-      .target = {0, 0, 0},
-      .fovy = 90,
+    .position = {20, 20, 20},
+    .target = {0, 0, 0},
+    .up = {0, 1, 0},
+    .fovy = 90,
+    .projection = CAMERA_PERSPECTIVE
   };
 
+  Vector3 cube_position = {0, 0, 0};
+  Mesh cube_mesh = GenMeshCube(4.0f, 4.0f, 4.0f);
+  Model cube_model = LoadModelFromMesh(cube_mesh);
+
   while (!WindowShouldClose()) {
+    float delta = GetFrameTime();
     BeginDrawing();
-    {
-      BeginMode3D(camera);
       ClearBackground(RAYWHITE);
-      { DrawCube(Vector3(), 20, 20, 20, RED); }
+      BeginMode3D(camera);
+        DrawModel(cube_model, cube_position, 1.0f, RED);
       EndMode3D();
-    }
     EndDrawing();
   }
 
