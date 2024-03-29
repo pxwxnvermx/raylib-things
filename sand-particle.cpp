@@ -28,14 +28,14 @@ void update_world() {
       if(current.type == SAND) {
         int targety = std::clamp(y+1, 0, rows-1);
         int targetx = std::clamp(x+GetRandomValue(-1, 1), 0, cols-1);
-        world[y][x] = Particle(AIR, 0);
+        world[y][x] = Particle{AIR, 0};
 
         if(world[targety][targetx].type != AIR) {
           targety = y;
           targetx = x;
         }
  
-        world[targety][targetx] = Particle(SAND, current.vy+1);
+        world[targety][targetx] = Particle{SAND, current.vy+1};
       }
     }
   }
@@ -47,7 +47,7 @@ Vector2 GetRandomCirclePoint(int radius) {
   int ry = GetRandomValue(low, high);
   int rx = GetRandomValue(low, high);
   int theta = GetRandomValue(low, high) * 2 * PI;
-  return Vector2(ry * cos(theta), rx * sin(theta));
+  return Vector2{ry * cosf(theta), rx * sinf(theta)};
 }
 
 int main() {
@@ -57,7 +57,7 @@ int main() {
   SetRandomSeed(time(0));
   for(int y = 0; y < rows; y++) {
     for(int x = 0; x < cols; x++) {
-      world[y][x] = Particle(AIR, 0);
+      world[y][x] = Particle{AIR, 0};
     }
   }
 
@@ -69,7 +69,7 @@ int main() {
         Vector2 circle_point = GetRandomCirclePoint(10);
         int draw_y = mouse_y + circle_point.x;
         int draw_x = mouse_x + circle_point.y;
-        world[draw_y][draw_x] = Particle(SAND, 1);
+        world[draw_y][draw_x] = Particle{SAND, 1};
       }
     }
 
