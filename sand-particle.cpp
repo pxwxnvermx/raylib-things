@@ -20,22 +20,30 @@ typedef array<array<Particle, cols>, rows> World;
 
 static World world;
 
+void process_sand(int y, int x) {
+  Particle current = world[y][x];
+  world[y][x] = Particle{AIR, 0};
+  int targety = std::min(y + current.vy, rows-1);
+  int targetx = std::clamp(x+GetRandomValue(-1, 1), 0, cols-1);
+  for(int ny = targety; ny > y; ny--) {
+    if(world[ny][targetx].type == AIR) {
+      targety = ny;
+      break;
+    }
+  }
+  if(world[targety][targetx].type != AIR) {
+    targety = y;
+    targetx = x;
+  }
+  world[targety][targetx] = Particle{SAND, current.vy+1};
+}
+
 void update_world() {
   auto world_copy = world;
   for(int y = 0; y < rows; y++) {
     for(int x = 0; x < cols; x++) {
-      Particle current = world_copy[y][x];
-      if(current.type == SAND) {
-        int targety = std::clamp(y+1, 0, rows-1);
-        int targetx = std::clamp(x+GetRandomValue(-1, 1), 0, cols-1);
-        world[y][x] = Particle{AIR, 0};
-
-        if(world[targety][targetx].type != AIR) {
-          targety = y;
-          targetx = x;
-        }
- 
-        world[targety][targetx] = Particle{SAND, current.vy+1};
+      if(world_copy[y][x].type == SAND) {
+        process_sand(y, x);
       }
     }
   }
