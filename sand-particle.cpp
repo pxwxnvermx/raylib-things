@@ -42,11 +42,9 @@ void update_world() {
 }
 
 Vector2 GetRandomCirclePoint(int radius) {
-  int high = radius; 
-  int low = -radius;
-  int ry = GetRandomValue(low, high);
-  int rx = GetRandomValue(low, high);
-  int theta = GetRandomValue(low, high) * 2 * PI;
+  int ry = GetRandomValue(-radius, radius);
+  int rx = GetRandomValue(-radius, radius);
+  int theta = GetRandomValue(-radius, radius) * 2 * PI;
   return Vector2{ry * cosf(theta), rx * sinf(theta)};
 }
 
@@ -62,13 +60,13 @@ int main() {
   }
 
   while (!WindowShouldClose()) {
-    int mouse_x = std::clamp(GetMouseX()/pixel_size, 0, rows-1);
-    int mouse_y = std::clamp(GetMouseY()/pixel_size, 0, cols-1);
+    int mouse_x = GetMouseX() / pixel_size;
+    int mouse_y = GetMouseY() / pixel_size;
     if(IsMouseButtonDown(0)) {
       for(int i = 0; i < 100; i++) {
         Vector2 circle_point = GetRandomCirclePoint(10);
-        int draw_y = mouse_y + circle_point.x;
-        int draw_x = mouse_x + circle_point.y;
+        int draw_y = std::clamp(int(mouse_y + circle_point.x), 0, rows-1);
+        int draw_x = std::clamp(int(mouse_x + circle_point.y), 0, cols-1);
         world[draw_y][draw_x] = Particle{SAND, 1};
       }
     }
