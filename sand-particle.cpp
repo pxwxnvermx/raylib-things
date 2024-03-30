@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include <raymath.h>
 #include <iostream>
 #include <algorithm>
 #include <array>
@@ -68,14 +69,14 @@ int main() {
   }
 
   while (!WindowShouldClose()) {
-    int mouse_x = GetMouseX() / pixel_size;
-    int mouse_y = GetMouseY() / pixel_size;
+    Vector2 mouse_pos = GetMousePosition();
+    mouse_pos = Vector2Divide(mouse_pos, Vector2{pixel_size, pixel_size});
     if(IsMouseButtonDown(0)) {
       for(int i = 0; i < 100; i++) {
         Vector2 circle_point = GetRandomCirclePoint(10);
-        int draw_y = std::clamp(int(mouse_y + circle_point.x), 0, rows-1);
-        int draw_x = std::clamp(int(mouse_x + circle_point.y), 0, cols-1);
-        world[draw_y][draw_x] = Particle{SAND, 1};
+        Vector2 draw_point = Vector2Add(mouse_pos, circle_point);
+        draw_point = Vector2Clamp(draw_point, Vector2{0, 0}, Vector2{rows-1, cols-1});
+        world[draw_point.y][draw_point.x] = Particle{SAND, 1};
       }
     }
 
