@@ -10,11 +10,11 @@ int main() {
   SetTargetFPS(60);
   SetTraceLogLevel(LOG_ALL);
   Camera3D camera = {
-    .position = {20, 20, 20},
-    .target = {0, 0, 0},
-    .up = {0, 1, 0},
-    .fovy = 90,
-    .projection = CAMERA_PERSPECTIVE
+      .position = {20, 20, 20},
+      .target = {0, 0, 0},
+      .up = {0, 1, 0},
+      .fovy = 90,
+      .projection = CAMERA_PERSPECTIVE,
   };
 
   Vector3 cube_position = {0, 0, 0};
@@ -24,10 +24,10 @@ int main() {
   while (!WindowShouldClose()) {
     float delta = GetFrameTime();
     BeginDrawing();
-      ClearBackground(RAYWHITE);
-      BeginMode3D(camera);
-        DrawModel(cube_model, cube_position, 1.0f, RED);
-      EndMode3D();
+    ClearBackground(RAYWHITE);
+    BeginMode3D(camera);
+    DrawModel(cube_model, cube_position, 1.0f, RED);
+    EndMode3D();
     EndDrawing();
   }
 

@@ -2,10 +2,10 @@
 #include <array>
 #include <iostream>
 #ifndef SCREEN_WIDTH
-  #define SCREEN_WIDTH 100
+#define SCREEN_WIDTH 100
 #endif // !SCREEN_WIDTH
 #ifndef SCREEN_HEIGHT
-  #define SCREEN_HEIGHT 100
+#define SCREEN_HEIGHT 100
 #endif // !SCREEN_HEIGHT
 
 using std::array;
