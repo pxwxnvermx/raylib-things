@@ -6,7 +6,6 @@ int main() {
   int screenHeight = factor * 9;
   SetConfigFlags(FLAG_WINDOW_RESIZABLE);
   InitWindow(screenWidth, screenHeight, "Just trying something");
-  InitAudioDevice();
   SetTargetFPS(60);
   SetTraceLogLevel(LOG_ALL);
   Camera3D camera = {
@@ -31,7 +30,6 @@ int main() {
     EndDrawing();
   }
 
-  CloseAudioDevice();
   CloseWindow();
   return 0;
 }
