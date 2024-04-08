@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <raylib.h>
 #include <raymath.h>
 #include <stddef.h>
@@ -6,46 +5,62 @@
 
 typedef struct node {
   Vector2 pos;
+  struct node *prev;
   struct node *next;
 } SnakeNode;
 
 typedef struct {
-  Vector2 dir;
   SnakeNode *head;
   SnakeNode *tail;
   size_t len;
+  Vector2 dir;
 } Snake;
 
-void append_node(Snake *snake, Vector2 pos) {
+SnakeNode *create_node(Vector2 pos) {
   SnakeNode *node = (SnakeNode *)malloc(sizeof(SnakeNode));
   node->pos = pos;
+  node->prev = NULL;
   node->next = NULL;
+  return node;
+}
 
+void push_front(Snake *snake, SnakeNode *node) {
+  SnakeNode *cur = snake->head;
   if (snake->head == NULL)
-    snake->head = node;
-  else
-    snake->tail->next = node;
-
-  snake->tail = node;
+    snake->tail = node;
+  cur->prev = node;
+  node->next = cur;
+  snake->head = node;
   snake->len++;
   return;
 }
 
-void draw_snake(Snake *snake, float delta) {
-  SnakeNode *cur = snake->head;
-  Vector2 vel = Vector2Multiply(snake->dir, (Vector2){32 * delta, 32 * delta});
-  while (cur != NULL) {
-    DrawRectangle(cur->pos.x, cur->pos.y, 32, 32, GRAY);
-    cur->pos = Vector2Add(cur->pos, vel);
-    cur = cur->next;
-  }
+void delete_tail(Snake *snake) {
+  SnakeNode *prev = snake->tail->prev;
+  free(prev->next);
+  prev->next = NULL;
+  snake->tail = prev;
+  snake->len--;
   return;
 }
 
-void move_snake(Snake *snake, Vector2 pos) {
+void update_snake(Snake *snake) {
+  SnakeNode *cur = snake->head;
+  Vector2 vel = Vector2Multiply(snake->dir, (Vector2){1, 1});
+  Vector2 pos = Vector2Add(cur->pos, vel);
+  SnakeNode *new_head = create_node(pos);
+
+  push_front(snake, new_head);
+
+  delete_tail(snake);
+  return;
+}
+
+void draw_snake(Snake *snake) {
   SnakeNode *cur = snake->head;
   while (cur != NULL) {
-    cur->pos = Vector2Add(cur->pos, pos);
+    DrawRectangle((int)cur->pos.x * 32 % GetScreenWidth(),
+                  (int)cur->pos.y * 32 % GetScreenHeight(), 32, 32, GRAY);
     cur = cur->next;
   }
   return;
@@ -60,22 +75,22 @@ int main() {
   InitAudioDevice();
   SetTargetFPS(60);
 
-  Camera2D camera = {0};
-  camera.offset = (Vector2){10, 10};
-  camera.target = (Vector2){0, 0};
-  camera.zoom = 1;
-  camera.rotation = 0;
-
   Snake snake;
-  snake.head = NULL;
-  snake.tail = NULL;
-  snake.len = 0;
+  snake.head = create_node((Vector2){1, 1});
+  snake.tail = snake.head;
   snake.dir = (Vector2){1, 0};
-  append_node(&snake, (Vector2){42, 10});
-  append_node(&snake, (Vector2){10, 10});
+  snake.len = 0;
+  push_front(&snake, create_node((Vector2){2, 1}));
+  push_front(&snake, create_node((Vector2){3, 1}));
+  push_front(&snake, create_node((Vector2){4, 1}));
+
+  float frame = 0;
+  Vector2 food = {0};
 
   while (!WindowShouldClose()) {
     const float delta = GetFrameTime();
+    frame += delta;
+
     if (IsKeyDown(KEY_W)) {
       snake.dir.x = 0;
       snake.dir.y = -1;
@@ -88,11 +103,19 @@ int main() {
     } else if (IsKeyDown(KEY_D)) {
       snake.dir.x = 1;
       snake.dir.y = 0;
+    } else if (IsKeyPressed(KEY_T)) {
+      delete_tail(&snake);
     }
+
+    if (frame > 0.15f) {
+      update_snake(&snake);
+      frame = 0;
+    }
+
     BeginDrawing();
     ClearBackground(RAYWHITE);
 
-    draw_snake(&snake, delta);
+    draw_snake(&snake);
 
     EndDrawing();
   }
@@ -101,3 +124,10 @@ int main() {
   CloseWindow();
   return 0;
 }
+
+/*
+ * TODO: Create a game board
+ * TODO: Spawn Food
+ * TODO: Collision
+ * TODO: Sound
+ * */
