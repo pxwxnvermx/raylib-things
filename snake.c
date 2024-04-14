@@ -32,6 +32,7 @@ typedef struct {
   Snake snake;
   Vector2 food;
   TileType board[ROWS][COLS];
+  int food_eaten;
 } Game;
 
 SnakeNode *create_node(int x, int y) {
@@ -73,6 +74,13 @@ void draw_snake(Snake *snake) {
   return;
 }
 
+Vector2 GetRandomCirclePoint(int radius) {
+  int ry = GetRandomValue(-radius, radius);
+  int rx = GetRandomValue(-radius, radius);
+  int theta = GetRandomValue(-radius, radius) * 2 * PI;
+  return (Vector2){ry * cosf(theta), rx * sinf(theta)};
+}
+
 Snake init_snake() {
   Snake snake;
   snake.head = create_node(1, 1);
@@ -94,7 +102,18 @@ void init_board(TileType board[ROWS][COLS]) {
   }
 }
 
-void update_snake(Game *game) {
+void update_game(Game *game) {
+  while (game->food.x == -1 && GetRandomValue(0, 1) == 0) {
+    int x = GetRandomValue(0, ROWS - 1);
+    int y = GetRandomValue(0, COLS - 1);
+    if (game->board[x][y] == AIR) {
+      game->board[x][y] = FOOD;
+      game->food.x = x;
+      game->food.y = y;
+      break;
+    }
+  }
+
   Snake *snake = &game->snake;
   Vector2 *food = &game->food;
   SnakeNode *cur = snake->head;
@@ -108,6 +127,7 @@ void update_snake(Game *game) {
     y = COLS - 1;
   if (y > COLS)
     y = 0;
+
   int check_snake = game->board[x][y] == SNAKE;
   if (check_snake != 0) {
     *snake = init_snake();
@@ -125,8 +145,7 @@ void update_snake(Game *game) {
     game->board[snake->tail->x][snake->tail->y] = AIR;
     delete_tail(snake);
   } else {
-    food->x = -1;
-    food->y = -1;
+    game->food_eaten = 1;
   }
   return;
 }
@@ -147,18 +166,21 @@ Game init_game() {
 
 int main() {
   Game game = init_game();
+  SetConfigFlags(FLAG_MSAA_4X_HINT);
+  SetConfigFlags(FLAG_VSYNC_HINT);
   InitWindow(SCREEN_W, SCREEN_H, "Snake");
   InitAudioDevice();
-  SetTargetFPS(60);
-  float frame = 0;
+  int frame_counter = 0;
+  float time_step = 0;
   int allow_input = 1;
+  Sound sound = LoadSound("./resources/short-bell.ogg");
 
   char *score = malloc(25 * sizeof(char));
 
   while (!WindowShouldClose()) {
     sprintf(score, "Score: %d", game.snake.len);
     const float delta = GetFrameTime();
-    frame += delta;
+    time_step += delta;
     if (IsKeyDown(KEY_W) && game.snake.dir_y != 1 && allow_input != 0) {
       game.snake.dir_x = 0;
       game.snake.dir_y = -1;
@@ -177,20 +199,10 @@ int main() {
       allow_input = 0;
     }
 
-    if (frame > 0.15f) {
+    if (time_step > 0.15f) {
       allow_input = 1;
-      frame = 0;
-      update_snake(&game);
-      while (game.food.x == -1 && GetRandomValue(0, 1) == 0) {
-        int x = GetRandomValue(0, ROWS - 1);
-        int y = GetRandomValue(0, COLS - 1);
-        if (game.board[x][y] == AIR) {
-          game.board[x][y] = FOOD;
-          game.food.x = x;
-          game.food.y = y;
-          break;
-        }
-      }
+      time_step = 0;
+      update_game(&game);
     }
 
     BeginDrawing();
@@ -198,6 +210,27 @@ int main() {
     draw_snake(&game.snake);
     DrawCircle(game.food.x * TILE_SIZE + (TILE_SIZE / 2),
                game.food.y * TILE_SIZE + (TILE_SIZE / 2), 10, RED);
+    if (game.food_eaten) {
+      frame_counter++;
+      if (frame_counter < 15) {
+        // for (int i = 0; i < 100; i++) {
+        //   Vector2 circle_point = GetRandomCirclePoint(2);
+        //   circle_point = Vector2Add(circle_point, game.food);
+        //   circle_point =
+        //       Vector2Multiply(circle_point, (Vector2){TILE_SIZE, TILE_SIZE});
+        //   DrawRectangleV(circle_point, (Vector2){3, 3}, RED);
+        // }
+        DrawCircleLines(game.food.x * TILE_SIZE + (TILE_SIZE / 2),
+                        game.food.y * TILE_SIZE + (TILE_SIZE / 2),
+                        20 * (15 - frame_counter), BLACK);
+      } else {
+        frame_counter = 0;
+        game.food.x = -1;
+        game.food.y = -1;
+        game.food_eaten = 0;
+        PlaySound(sound);
+      }
+    }
     DrawText(score, 8, 8, 20, BLACK);
     EndDrawing();
   }
