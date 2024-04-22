@@ -1,3 +1,6 @@
+#ifndef __GAME_OF_LIFE_H__
+#define __GAME_OF_LIFE_H__
+
 #include <algorithm>
 #include <array>
 #include <iostream>
@@ -49,3 +52,5 @@ void fill_random() {
     }
   }
 }
+
+#endif // !__GAME_OF_LIFE_H__
