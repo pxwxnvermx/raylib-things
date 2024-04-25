@@ -19,7 +19,6 @@ int main() {
     if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
       Vector2 mpos = GetMousePosition();
       emit_particle(&particle_state, mpos);
-      TraceLog(LOG_INFO, "Current pool_index %d", particle_state.pool_index);
     }
     update_particles(&particle_state, delta);
     BeginDrawing();
