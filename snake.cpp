@@ -14,8 +14,6 @@
 
 typedef enum { SNAKE, FOOD, AIR } TileType;
 
-typedef struct Vector2 SnakeNode;
-
 typedef std::deque<Vector2> Snake;
 
 typedef struct {
@@ -74,7 +72,7 @@ void update_game(Game *game) {
     }
   }
 
-  SnakeNode cur = game->snake.front();
+  Vector2 cur = game->snake.front();
   int x = cur.x + game->dir_x;
   int y = cur.y + game->dir_y;
   if (x < 0)
@@ -142,14 +140,16 @@ int main() {
     if (time_step > 0.15f) {
       allow_input = 1;
       time_step = 0;
-      update_game(&game);
     }
+
+    update_game(&game);
 
     BeginDrawing();
     ClearBackground(RAYWHITE);
     for (auto node : game.snake) {
-      DrawRectangle(node.x * TILE_SIZE, node.y * TILE_SIZE, TILE_SIZE,
-                    TILE_SIZE, GRAY);
+      float x = node.x + game.dir_x * delta;
+      float y = node.y + game.dir_y * delta;
+      DrawRectangle(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE, GRAY);
     }
     DrawCircle(game.food.x * TILE_SIZE + (TILE_SIZE / 2),
                game.food.y * TILE_SIZE + (TILE_SIZE / 2), 10, RED);

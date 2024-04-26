@@ -1,3 +1,4 @@
+#include "particles/particles.h"
 #include <raylib.h>
 #include <raymath.h>
 #include <stddef.h>
@@ -137,7 +138,6 @@ void update_game(Game *game) {
     return;
   }
   int check_food = game->board[x][y] == FOOD && x == food->x && y == food->y;
-
   SnakeNode *new_head = create_node(x, y);
   game->board[new_head->x][new_head->y] = SNAKE;
   push_front(snake, new_head);
@@ -177,6 +177,9 @@ int main() {
 
   char *score = malloc(25 * sizeof(char));
 
+  ParticleState particle_state = {0};
+  particle_state.pool_index = NUM_PARTICLES - 1;
+
   while (!WindowShouldClose()) {
     sprintf(score, "Score: %d", game.snake.len);
     const float delta = GetFrameTime();
@@ -204,32 +207,28 @@ int main() {
       time_step = 0;
       update_game(&game);
     }
-
+    update_particles(&particle_state, delta);
     BeginDrawing();
     ClearBackground(RAYWHITE);
     draw_snake(&game.snake);
     DrawCircle(game.food.x * TILE_SIZE + (TILE_SIZE / 2),
                game.food.y * TILE_SIZE + (TILE_SIZE / 2), 10, RED);
+    draw_particles(&particle_state);
     if (game.food_eaten) {
-      frame_counter++;
-      if (frame_counter < 15) {
-        // for (int i = 0; i < 100; i++) {
-        //   Vector2 circle_point = GetRandomCirclePoint(2);
-        //   circle_point = Vector2Add(circle_point, game.food);
-        //   circle_point =
-        //       Vector2Multiply(circle_point, (Vector2){TILE_SIZE, TILE_SIZE});
-        //   DrawRectangleV(circle_point, (Vector2){3, 3}, RED);
-        // }
-        DrawCircleLines(game.food.x * TILE_SIZE + (TILE_SIZE / 2),
-                        game.food.y * TILE_SIZE + (TILE_SIZE / 2),
-                        20 * (15 - frame_counter), BLACK);
-      } else {
-        frame_counter = 0;
-        game.food.x = -1;
-        game.food.y = -1;
-        game.food_eaten = 0;
-        PlaySound(sound);
+      Particle particle = {
+          .pos = Vector2Multiply(game.food, (Vector2){TILE_SIZE, TILE_SIZE}),
+          .size_begin = 10,
+          .size_end = 5,
+          .lifetime = 1.0f,
+          .life_remaining = 1.0f,
+      };
+      for (size_t i = 0; i < 10; i++) {
+        emit_particle(&particle_state, particle);
       }
+      game.food.x = -1;
+      game.food.y = -1;
+      game.food_eaten = 0;
+      PlaySound(sound);
     }
     DrawText(score, 8, 8, 20, BLACK);
     EndDrawing();
