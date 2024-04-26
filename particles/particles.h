@@ -21,6 +21,6 @@ typedef struct {
 
 void update_particles(ParticleState *, float);
 void draw_particles(ParticleState *);
-void emit_particle(ParticleState *, Vector2);
+void emit_particle(ParticleState *, Particle);
 
 #endif // !__PARTICLES_H__

@@ -31,19 +31,19 @@ void draw_particles(ParticleState *particle_state) {
   return;
 }
 
-void emit_particle(ParticleState *particle_state, Vector2 pos) {
+void emit_particle(ParticleState *particle_state, Particle p_props) {
   Particle *particle =
       &particle_state->particles_pool[particle_state->pool_index];
   particle->active = 1;
-  particle->pos = pos;
-  particle->size_begin = 10;
-  particle->size_end = 5;
+  particle->pos = p_props.pos;
+  particle->size_begin = p_props.size_begin;
+  particle->size_end = p_props.size_end;
   particle->vel = (Vector2){
-      particle->size_begin * 10.0f - GetRandomValue(0, 100) * 0.5f,
-      particle->size_begin * 10.0f - GetRandomValue(0, 100) * 0.5f,
+      GetRandomValue(-particle->size_begin, particle->size_begin) * 10.0f,
+      GetRandomValue(-particle->size_begin, particle->size_begin) * 10.0f,
   };
-  particle->lifetime = 1.0f;
-  particle->life_remaining = 1.0f;
+  particle->lifetime = p_props.lifetime;
+  particle->life_remaining = p_props.life_remaining;
 
   particle_state->pool_index--;
   if (particle_state->pool_index < 0) {

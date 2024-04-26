@@ -12,7 +12,7 @@ int main() {
   SetTraceLogLevel(LOG_ALL);
 
   ParticleState particle_state = {0};
-  particle_state.pool_index = 19;
+  particle_state.pool_index = NUM_PARTICLES - 1;
 
   while (!WindowShouldClose()) {
     float delta = GetFrameTime();
